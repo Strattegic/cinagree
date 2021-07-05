@@ -1,27 +1,35 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
-  <HelloWorld msg="Welcome to Your Vue.js + TypeScript App" />
+  <h1>🎬 Cinagree™ 🎬</h1>
+  <MovieMatching />
 </template>
 
 <script lang="ts">
 import { defineComponent } from "vue";
-import HelloWorld from "./components/HelloWorld.vue";
+import MovieMatching from "./components/MovieMatching.vue";
 
 export default defineComponent({
   name: "App",
   components: {
-    HelloWorld,
+    MovieMatching,
   },
 });
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+  body {
+    background: #5a5a5a;
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+    overflow: hidden;
+  }
+
+  #app {
+    font-family: Avenir, Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-align: center;
+    color: #2c3e50;
+    margin-top: 60px;
+  }
 </style>
