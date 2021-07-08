@@ -1,29 +1,14 @@
-# cinagree
+# Cinagree - Choose a movie to watch, together.
 
-## Project setup
-```
-npm install
-```
+------
 
-### Compiles and hot-reloads for development
-```
-npm run serve
-```
+## About Cinagree
 
-### Compiles and minifies for production
-```
-npm run build
-```
+Cinagree is a fun application that lets a group of people choose the right flick for movie night.
 
-### Run your unit tests
-```
-npm run test:unit
-```
+## How it works (WIP)
 
-### Lints and fixes files
-```
-npm run lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+1. One person needs to create a "room" that all the others can join.
+2. Everyone agrees on categories to watch (like drama, thriller or horror)
+3. All watchers get a list of movies that they can agree or disagree to.
+4. 🏆 The movie that everyone agreed with is the winner

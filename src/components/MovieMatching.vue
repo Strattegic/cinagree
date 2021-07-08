@@ -1,16 +1,19 @@
 <template>
     <div>
-        <h2>{{ movieName }}</h2>
         <div class="movie-matching">
             <div class="cards">
-                <div class="card" v-bind:key="movie.name" v-for="movie of movies">
-                    <img v-bind:src=movie.url alt="">
-                    <h3>{{ movie.name }}</h3>
+<!--                <div class="card" v-bind:key="movie.name" v-for="movie of movies">-->
+<!--                    <img v-bind:src=movie.url alt="">-->
+<!--                    <h3>{{ movie.name }}</h3>-->
+<!--                </div>-->
+                <div class="card" v-if="currentMovie">
+                    <img v-bind:src=currentMovie.url alt="">
+                    <h3>{{ currentMovie.name }}</h3>
                 </div>
             </div>
             <div class="buttons">
-                <button id="nope">😡</button>
-                <button id="yeah">😀</button>
+                <button id="nope" v-on:click="voteNay()">😡</button>
+                <button id="yeah" v-on:click="voteYay()">😀</button>
             </div>
         </div>
     </div>
@@ -19,10 +22,42 @@
 <script lang="ts">
     import { defineComponent } from "vue";
 
+    interface Movie {
+        name: string
+        url: string
+    }
+
     export default defineComponent({
-        name: "HelloWorld",
+        name: "MovieMatching",
+        methods: {
+            voteYay: function() {
+                console.log('yay')
+                this.matchedMovies.push(this.currentMovie)
+                this.nextMovie()
+            },
+            voteNay: function() {
+                console.log('nay')
+                this.nextMovie()
+            },
+            nextMovie: function() {
+                if (this.movieCount + 1 < this.movies.length) {
+                    console.log(this.currentMovie)
+                    this.currentMovie = this.movies[++this.movieCount]
+                    console.log(this.currentMovie)
+                }
+            },
+        },
+        mounted: function() {
+            this.currentMovie = this.movies[0]
+        },
         data: () => {
             return {
+                movieCount: 0,
+                currentMovie: {
+                    name: 'n/a',
+                    url: '',
+                },
+                matchedMovies: [] as Movie[],
                 movies: [
                     {
                         name: '12 Angry Men',
@@ -32,7 +67,7 @@
                         name: 'Lord Of The Rings',
                         url: require('../assets/movie_posters/lord_of_the_rings.jpg'),
                     }
-                ]
+                ],
             }
         },
         props: {
@@ -42,6 +77,75 @@
 </script>
 
 <style scoped>
+    .movie-matching {
+    }
+
+    .cards {
+        display: flex;
+        justify-content: center;
+        flex-direction: row;
+    }
+
+    .card {
+        margin: auto;
+    }
+
+    .card h3 {
+        color: #fff;
+    }
+
+    .card img {
+        max-height: 500px;
+        width: auto;
+        max-width: 90%;
+    }
+
+    .buttons {
+        flex: 0 0 100px;
+    }
+
+    .buttons button {
+        border-radius: 50%;
+        border: 0;
+        margin: 0 8px;
+        display: inline-block;
+        width: 60px;
+        line-height: 60px;
+        background: #fff;
+        font-size: large;
+        cursor: pointer;
+    }
+
+    .buttons button:hover {
+        background: #ccc;
+    }
+
+    /*
+    .movie-matching {
+        width: 100vw;
+        height: 90vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+
+    .cards {
+        padding-top: 40px;
+        margin: auto;
+    }
+
+    .card {
+        width: 90vw;
+        height: 70vh;
+        max-width: 400px;
+        padding-bottom: 20px;
+        border-radius: 8px;
+    }
+
+    .card img {
+        max-width: 100%;
+    }
+
     .movie-matching {
         width: 100vh;
         height: 100vh;
@@ -80,19 +184,5 @@
         pointer-events: none;
     }
 
-    .buttons {
-        flex: 0 0 100px;
-        margin-top: 20px
-    }
-
-    .buttons button {
-        border-radius: 50%;
-        border: 0;
-        margin: 0 8px;
-        display: inline-block;
-        width: 60px;
-        line-height: 60px;
-        background: #fff;
-        font-size: large;
-    }
+     */
 </style>
