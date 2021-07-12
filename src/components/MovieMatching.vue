@@ -1,5 +1,6 @@
 <template>
     <div>
+        {{ websocketData }}
         <div class="movie-matching">
             <div class="cards">
 <!--                <div class="card" v-bind:key="movie.name" v-for="movie of movies">-->
@@ -21,22 +22,29 @@
 
 <script lang="ts">
     import { defineComponent } from "vue";
+    import { io } from "socket.io-client";
+    const socket = io('ws://localhost:3000')
 
     interface Movie {
         name: string
         url: string
     }
 
+    interface MovieMatchingEvent {
+        isMatch: boolean
+        movie: Movie
+    }
+
     export default defineComponent({
         name: "MovieMatching",
         methods: {
             voteYay: function() {
-                console.log('yay')
+                this.sendMatchingEvent(this.currentMovie, true)
                 this.matchedMovies.push(this.currentMovie)
                 this.nextMovie()
             },
             voteNay: function() {
-                console.log('nay')
+                this.sendMatchingEvent(this.currentMovie, false)
                 this.nextMovie()
             },
             nextMovie: function() {
@@ -46,12 +54,23 @@
                     console.log(this.currentMovie)
                 }
             },
+
+            sendMatchingEvent(movie: Movie, isMatch: boolean) {
+                socket.emit('movie-matching', {
+                    isMatch,
+                    movie
+                } as MovieMatchingEvent)
+            }
         },
         mounted: function() {
             this.currentMovie = this.movies[0]
+            socket.on("data", (data) => {
+                this.websocketData = data
+            });
         },
         data: () => {
             return {
+                websocketData: null,
                 movieCount: 0,
                 currentMovie: {
                     name: 'n/a',
