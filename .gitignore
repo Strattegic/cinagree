@@ -23,3 +23,5 @@ pnpm-debug.log*
 *.sw?
 /cinegree.iml
 /backend/build
+/cinagree2.iml
+/frontend/dist/
