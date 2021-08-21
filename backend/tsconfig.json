@@ -1,9 +1,13 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
-    "target": "es6",
-    "rootDir": "./",
+    "module": "CommonJS",
+    "target": "esnext",
+    "rootDir": ".",
     "esModuleInterop": true,
-    "outDir": "build"
+    "outDir": "build",
+    "baseUrl": ".",
+    "paths": {
+      "@common/*": ["../common/src/*"]
+    }
   }
 }
