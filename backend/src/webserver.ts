@@ -17,8 +17,7 @@ io.on('connection', (socket: Socket) => {
   console.log(`A user with ID '${socket.id}' connected`)
 
   socket.on('movie-matching', function (data) {
-    console.log(data)
-    storage.saveMovieVote(roomId, data.movie.name, socket.id, data.isMatch)
+    storage.saveMovieVote(roomId, data.movie, socket.id, data.isMatch)
   })
 
   socket.on('disconnect', function () {
