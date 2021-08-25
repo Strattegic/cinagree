@@ -1,7 +1,7 @@
 export default class Movie {
-  originalTitle: string = ''
-  description: string = ''
-  imageUrl: string = ''
+  originalTitle = ''
+  description = ''
+  imageUrl = ''
 
   constructor(readonly id: string, readonly title: string) {}
 
@@ -11,8 +11,8 @@ export default class Movie {
     movie.description = movieResult.overview
 
     const posterPath = movieResult.poster_path.startsWith('/')
-      ? movieResult.poster_path.substring(1)
-      : movieResult.poster_path
+        ? movieResult.poster_path.substring(1)
+        : movieResult.poster_path
     movie.imageUrl = `https://image.tmdb.org/t/p/w500/${posterPath}`
     return movie
   }

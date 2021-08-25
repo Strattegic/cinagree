@@ -64,15 +64,12 @@ export default defineComponent({
     },
     nextMovie: function () {
       if (this.movieCount + 1 < this.movies.length) {
-        console.log(this.currentMovie)
         this.currentMovie = this.movies[++this.movieCount]
-        console.log(this.currentMovie)
       }
     },
 
     loadMovies: function () {
       movieDb.moviePopular().then((data: any) => {
-        console.log(data)
         this.movies = data.results.map((result: any) => {
           return Movie.fromMovieResult(result)
         })
