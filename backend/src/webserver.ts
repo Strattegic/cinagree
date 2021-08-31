@@ -13,15 +13,29 @@ const io = new Server(httpServer, {
 const storage = new MatchingStorage()
 const roomId = uuid()
 
-io.on('connection', (socket: Socket) => {
-  console.log(`A user with ID '${socket.id}' connected`)
+function sendUserCount(userCount) {
+  io.in(roomId).emit('room-update', userCount)
+}
 
-  socket.on('movie-matching', function (data) {
-    storage.saveMovieVote(roomId, data.movie, socket.id, data.isMatch)
+io.on('connection', (socket: Socket) => {
+  socket.join(roomId)
+  const clients = io.sockets.adapter.rooms.get(roomId)
+  sendUserCount(clients.size)
+  console.log(`A user with ID '${socket.id}' connected. ${clients.size} users in the room.`)
+
+  socket.on('movie-vote', function (data) {
+    // storage.saveMovieVote(roomId, data.movie, socket.id, true)
+    io.in(roomId).emit('movie-vote', {
+      movie: data.movie,
+      user: socket.id,
+    })
   })
 
-  socket.on('disconnect', function () {
-    console.log(`A user with ID '${socket.id}' disconnected`)
+  socket.on('disconnecting', function () {
+    const clients = io.sockets.adapter.rooms.get(roomId)
+    const userCount = clients.size - 1
+    sendUserCount(userCount)
+    console.log(`A user with ID '${socket.id}' has disconnected. ${userCount} users in the room.`)
   })
 })
 
