@@ -1,19 +1,16 @@
 <template>
   <div>
-    <div class="movie-matching" v-if="!matchedMovie">
+    <div v-if="!Object.keys(matchedMovie).length" class="movie-matching">
       <div class="cards">
         <div v-if="currentMovie" class="card">
           <img :src="currentMovie.imageUrl" alt="" />
           <h3>{{ currentMovie.title }}</h3>
         </div>
       </div>
-      <div class="buttons">
-        <button @click="voteNay()">😡</button>
-        <button @click="voteYay()">😀</button>
-      </div>
+      <VoteButtons v-on:vote="voteReceived" />
     </div>
     <div v-else>
-      <MovieMatched :movie="matchedMovie"></MovieMatched>
+      <MovieResult :movie="matchedMovie"></MovieResult>
     </div>
   </div>
 </template>
@@ -22,8 +19,9 @@
 import { defineComponent, PropType } from 'vue'
 import { MovieDb } from 'moviedb-promise/dist'
 import { io } from 'socket.io-client'
-import Movie, { fromMovieResult } from '@/models/movie'
-import MovieMatched from "@/components/MovieMatched.vue";
+import Movie, { fromMovieResult } from '../models/movie'
+import MovieResult from '../components/MovieResult.vue'
+import VoteButtons from '../components/VoteButtons.vue'
 
 const socket = io('ws://localhost:3000')
 const movieDb = new MovieDb(process.env.VUE_APP_TMDB_API_KEY!)
@@ -41,7 +39,8 @@ interface UserVote {
 export default defineComponent({
   name: 'MovieMatching',
   components: {
-    MovieMatched,
+    MovieResult,
+    VoteButtons,
   },
   props: {
     movieName: String,
@@ -58,9 +57,13 @@ export default defineComponent({
     }
   },
   mounted: function () {
-    this.loadMovies()
+    socket.on('movies:loaded', (movies: Movie[]) => {
+      console.log(`${movies.length} movies have loaded!`)
+      this.currentMovie = movies[0]
+      this.movies = movies
+    })
 
-    socket.on('movie-vote', (userVote: UserVote) => {
+    socket.on('movie:voted', (userVote: UserVote) => {
       console.debug(
         `A new user vote was received. User '${userVote.user}' voted for '${userVote.movie.title}'`
       )
@@ -68,21 +71,33 @@ export default defineComponent({
       this.checkForMatchedMovie()
     })
 
-    socket.on('room-update', (userCount: number) => {
+    socket.on('room:userCountUpdated', (userCount: number) => {
       console.log(`${userCount} users online`)
       this.userCount = userCount
     })
 
     socket.on('connect', () => {
-
       this.userId = socket.id
     })
   },
   methods: {
+    voteReceived(vote: boolean) {
+      console.log('user clicked: ' + vote)
+      socket.emit('movie:vote', {
+        movie: this.currentMovie,
+        user: this.userId,
+        vote: vote
+      })
+      this.nextMovie()
+    },
+
     checkForMatchedMovie() {
       const matchedMovieId = this.getMatchedMovieId()
       if (matchedMovieId) {
-        this.matchedMovie = this.movies.find(movie => movie.id === matchedMovieId)
+        console.log('matched movie: ' + this.matchedMovie)
+        this.matchedMovie = this.movies.find(
+          (movie) => movie.id === matchedMovieId
+        )
         console.log(`Match found! ${this.matchedMovie}`)
       }
     },
@@ -91,7 +106,7 @@ export default defineComponent({
       let matchedMovie
       this.movieVotes.forEach((userVotes: string[], movieId: string) => {
         console.log(`Looking for match: ${userVotes.length} for ${movieId}`)
-        if(userVotes.length >= this.userCount) {
+        if (userVotes.length >= this.userCount) {
           matchedMovie = movieId
           console.log(`Match found! ${matchedMovie}`)
           return
@@ -108,38 +123,10 @@ export default defineComponent({
       this.movieVotes.get(userVote.movie.id).push(userVote.user)
     },
 
-    voteYay: function () {
-      this.sendMovieVoteEvent(this.currentMovie!, true)
-      this.nextMovie()
-    },
-
-    voteNay: function () {
-      this.nextMovie()
-    },
-
     nextMovie: function () {
       if (this.movieCount + 1 < this.movies.length) {
         this.currentMovie = this.movies[++this.movieCount]
       }
-    },
-
-    loadMovies: function () {
-      movieDb.moviePopular().then((data: any) => {
-        this.movies = data.results.map((result: any) => {
-          return fromMovieResult(result)
-        })
-        this.currentMovie = this.movies[0]
-
-        // TODO: for testing
-        this.matchedMovie = this.currentMovie
-        console.log(this.matchedMovie)
-      })
-    },
-
-    sendMovieVoteEvent(movie: Movie, votedYes: boolean) {
-      socket.emit('movie-vote', {
-        movie,
-      } as MovieVoteEvent)
     },
   },
 })
@@ -164,25 +151,5 @@ export default defineComponent({
   max-height: 500px;
   width: auto;
   max-width: 90%;
-}
-
-.buttons {
-  flex: 0 0 100px;
-}
-
-.buttons button {
-  border-radius: 50%;
-  border: 0;
-  margin: 0 8px;
-  display: inline-block;
-  width: 60px;
-  line-height: 60px;
-  background: #fff;
-  font-size: large;
-  cursor: pointer;
-}
-
-.buttons button:hover {
-  background: #ccc;
 }
 </style>

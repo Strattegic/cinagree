@@ -1,7 +1,10 @@
 <template>
-  <div>
+  <div class="flex flex-col align-center text-center max-h-full">
     It's a Match!
-    <img :src="movie.imageUrl" class="match-poster" alt="">
+    <div class="mx-auto">
+      <img :src="movie.imageUrl" class="max-h-full" alt="" />
+      <div>{{ movie.title }}</div>
+    </div>
   </div>
 </template>
 
@@ -14,7 +17,7 @@ export default defineComponent({
   props: {
     movie: {
       type: Object as PropType<Movie>,
-      required: true
+      required: true,
     },
   },
   data: () => {
@@ -23,8 +26,4 @@ export default defineComponent({
 })
 </script>
 
-<style scoped>
-  .match-poster {
-    height: 400px;
-  }
-</style>
+<style scoped></style>
